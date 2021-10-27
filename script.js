@@ -1,5 +1,7 @@
 const operate = (operator, a, b) => {
     let answer;
+    a = +a;
+    b = +b;
     switch (operator){
         case '+':
             answer = add(a,b);
@@ -27,7 +29,7 @@ const operate = (operator, a, b) => {
 
 
     };
-    return answer;
+    display.textContent = answer;
 };
 
 const add = (a, b) => a + b;
@@ -59,6 +61,45 @@ const factorial = (a) => {
     if (product === 0) return 1;
 
  return product;
+};
+
+const updateDisplay = (input) => {
+    if (input === 'C') {
+        display.textContent = '0';
+        return;
+        };
+    if (input === 'BS') {
+        display.textContent = display.textContent.slice(0, -1);
+        return;
+    };
+
+    if (display.textContent === '0') display.textContent = '';
+
+    display.textContent += input;
+};
+
+const parseDisplay = () => {
+    let operatorRegex = /([\+\-*\/\^!])/gi;
+    let splitDisplay = display.textContent.split(operatorRegex);
+
+    operate(splitDisplay[1], splitDisplay[0], splitDisplay[2]);
+
 
 
 };
+
+
+const display = document.querySelector('#screen');
+
+const buttons = document.querySelectorAll('#calc-ctn button');
+
+buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+        if (button.name === '=') {
+            parseDisplay();
+            return;
+            };
+        updateDisplay(button.name);
+    });
+});
+

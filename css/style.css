@@ -4,13 +4,22 @@
 
 #calc-ctn {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     border: 2px solid red;
+    max-width: 500px;
+    justify-content: center;
+
 }
 
-#numbers {
+#numbers, #operators {
     display: grid;
     grid-template-columns: auto auto auto;
     justify-content: center;
+    border: 2px solid blue;
 
+}
+
+#display {
+    border: 2px solid green;
+    margin: 0 auto;
 }
