@@ -1,4 +1,5 @@
 const operate = (operator, a, b) => {
+    //does the math logic
     let answer;
     a = +a;
     b = +b;
@@ -29,6 +30,10 @@ const operate = (operator, a, b) => {
 
 
     };
+
+    if (answer.toString().length >= 12) {
+        return display.textContent = answer.toPrecision(12);
+        };
     display.textContent = answer;
 };
 
@@ -38,7 +43,11 @@ const subtract = (a, b) => a - b;
 
 const multiply = (a,b) => a * b;
 
-const divide = (a,b) => a / b;
+const divide = (a,b) => {
+    //divide by zero snarky answer
+    if (b === 0) return "Really?";
+    return a / b;
+    };
 
 const power = (a,b) => {
     let i = 2;
@@ -64,42 +73,127 @@ const factorial = (a) => {
 };
 
 const updateDisplay = (input) => {
-    if (input === 'C') {
-        display.textContent = '0';
-        return;
-        };
-    if (input === 'BS') {
-        display.textContent = display.textContent.slice(0, -1);
-        return;
-    };
+    switch (input){
+        case 'C':
+            //clears the screen
+            display.textContent = '0';
+            return;
 
+
+        case 'BS':
+            //removes last character on screen
+            display.textContent = display.textContent.slice(0, -1);
+            return;
+
+        case '.':
+            //makes sure there's not too many decimals already
+            while(checkForDecimal()) return;
+            break;
+
+
+        };
+
+    //removes starting zero from display
     if (display.textContent === '0') display.textContent = '';
 
+    //adds to display as long as equals isn't pressed
+    if (input !== '='){
     display.textContent += input;
+        };
+
+    //splits display into three parts, first number, operator, last number
+    let splitOnOperator = parseDisplay();
+
+    if (splitOnOperator.length === 1) return;
+
+    let firstNumber = splitOnOperator[0],
+        operator = splitOnOperator[1],
+        secondNumber = splitOnOperator[2];
+
+
+    if (input === '='){
+        //if equals is pressed, operates what's on the display
+        operate(operator, firstNumber, secondNumber);
+    };
+
+    if (splitOnOperator.length === 5){
+        //if second operator is pressed, operates what's on the display first and appends second operator
+        operate(operator, firstNumber, secondNumber);
+        display.textContent += input;
+    };
+
+
 };
 
 const parseDisplay = () => {
+    //splits what's on the display on every possible operator and returns split string array
     let operatorRegex = /([\+\-*\/\^!])/gi;
     let splitDisplay = display.textContent.split(operatorRegex);
 
-    operate(splitDisplay[1], splitDisplay[0], splitDisplay[2]);
+    return splitDisplay;
 
 
 
 };
+
+function checkForDecimal() {
+    //Checks that there aren't too many decimals
+    let isDecimalOnScreen = false;
+
+    let decimalRegex = /\./gi;
+    let decText = display.textContent.split(decimalRegex);
+    let splitText = parseDisplay(); //gets the current display split by operator
+
+
+    //Allows one decimal number if there's no operator and two if there is
+    if ((decText.length === 2 && splitText.length < 3) ||
+        (decText.length > 2 && splitText.length >= 3)) {
+        isDecimalOnScreen = true;
+        };
+
+
+    return isDecimalOnScreen;
+}
+
+function keyboardSupport(key){
+    switch (key){
+        case 'Enter':
+            key = '=';
+            break;
+
+        case 'Backspace':
+            key = 'BS';
+            break;
+
+        case 'c':
+            key = 'C';
+            break;
+
+        case 'Delete':
+            key = 'C';
+    };
+
+    let possibleButtons = ['1','2','3','4','5','6','7','8','9','0',
+    '*','!','+','.','/','-','^','=','C','BS'];
+
+    //does nothing if key pressed isn't part of calculator
+    while (!(possibleButtons.includes(key))) return;
+
+    updateDisplay(key);
+
+}
 
 
 const display = document.querySelector('#screen');
 
 const buttons = document.querySelectorAll('#calc-ctn button');
 
+//updates display when buttons are pressed
 buttons.forEach((button) => {
     button.addEventListener('click', () => {
-        if (button.name === '=') {
-            parseDisplay();
-            return;
-            };
         updateDisplay(button.name);
     });
 });
 
+//updates display when keyboard buttons are pressed
+document.addEventListener('keydown', (event) => keyboardSupport(event.key));
