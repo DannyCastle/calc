@@ -13,32 +13,32 @@
 
     <div id='calc-ctn'>
         <div id='summary-screen'></div>
-        <div id='screen'></div>
+        <div id='screen'>0</div>
 
         <div id='numbers'>
-            <button name="7" >7</button>
-            <button name="8" >8</button>
-            <button name="9" >9</button>
-            <button name="4" >4</button>
-            <button name="5" >5</button>
-            <button name="6" >6</button>
-            <button name="1" >1</button>
-            <button name="2" >2</button>
-            <button name="3" >3</button>
-            <button name="+/-" >+/-</button>
-            <button name="0" >0</button>
-            <button name=".">.</button>
+            <button name="7" data-number>7</button>
+            <button name="8" data-number>8</button>
+            <button name="9" data-number>9</button>
+            <button name="4" data-number>4</button>
+            <button name="5" data-number>5</button>
+            <button name="6" data-number>6</button>
+            <button name="1" data-number>1</button>
+            <button name="2" data-number>2</button>
+            <button name="3" data-number>3</button>
+            <button name="+/-" id="toggle-negative">+/-</button>
+            <button name="0" data-number>0</button>
+            <button name="." id="decimal">.</button>
         </div>
 
         <div id='operators'>
             <button id="clear" name="C" >C</button>
             <button id="backspace" name="BS" >BS</button>
-            <button class="new-row" name="+" >+</button>
-            <button name="-" >-</button>
-            <button name="*" >*</button>
-            <button name="/" >/</button>
-            <button name="^" >^</button>
-            <button name="!" >!</button>
+            <button class="new-row" name="+" data-operator>+</button>
+            <button name="-" data-operator>-</button>
+            <button name="*" data-operator>*</button>
+            <button name="/" data-operator>/</button>
+            <button name="^" data-operator>^</button>
+            <button name="!" data-operator>!</button>
             <button id="equals" name="=" >=</button>
         </div>
 
