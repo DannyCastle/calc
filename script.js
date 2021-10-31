@@ -77,12 +77,17 @@ const updateDisplay = (input) => {
         case 'C':
             //clears the screen
             display.textContent = '0';
+            summary.textContent = '';
             return;
 
 
         case 'BS':
             //removes last character on screen
             display.textContent = display.textContent.slice(0, -1);
+            return;
+
+        case '+/-':
+            toggleNegativeSign();
             return;
 
         case '.':
@@ -113,11 +118,14 @@ const updateDisplay = (input) => {
 
     if (input === '='){
         //if equals is pressed, operates what's on the display
+        summary.textContent = display.textContent;
         operate(operator, firstNumber, secondNumber);
     };
 
     if (splitOnOperator.length === 5){
         //if second operator is pressed, operates what's on the display first and appends second operator
+        summary.textContent = display.textContent;
+        console.log(summary.textContent);
         operate(operator, firstNumber, secondNumber);
         display.textContent += input;
     };
@@ -155,6 +163,16 @@ function checkForDecimal() {
     return isDecimalOnScreen;
 }
 
+function toggleNegativeSign(){
+    let split = display.textContent.split(/-/gi);
+    if (split.length < 2){
+        display.textContent = '-' + split[0];
+        return;
+    }
+    display.textContent = split[1];
+
+};
+
 function keyboardSupport(key){
     switch (key){
         case 'Enter':
@@ -183,6 +201,7 @@ function keyboardSupport(key){
 
 }
 
+const summary = document.querySelector('#summary-screen');
 
 const display = document.querySelector('#screen');
 
