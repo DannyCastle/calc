@@ -1,6 +1,7 @@
-let firstNumber;
-let secondNumber;
-let currentOperator;
+let currentNumber;
+let previousNumber;
+let previousOperator;
+let isAnswer = false;
 
 const summary = document.querySelector('#summary-screen');
 const display = document.querySelector('#screen');
@@ -13,7 +14,7 @@ const backspace = document.querySelector('#backspace');
 const equals = document.querySelector('#equals');
 
 document.addEventListener('keydown', (event) => keyboardSupport(event.key));
-//equals.addEventListener('click', equalsFunction);
+equals.addEventListener('click', equalsFunc);
 backspace.addEventListener('click', doBackspace);
 clear.addEventListener('click', clearDisplay);
 toggleNegative.addEventListener('click', toggleNegativeSign);
@@ -35,6 +36,7 @@ operators.forEach((operator) => {
 
 function doBackspace(){
     display.textContent = display.textContent.slice(0, -1);
+    isAnswer = false;
 };
 
 function clearDisplay(){
@@ -60,162 +62,136 @@ function toggleNegativeSign(){
 
 function appendDecimal() {
     //Checks that there aren't too many decimals
+    if (isAnswer) {
+        display.textContent = '';
+        isAnswer = false;
+        };
     let str = display.textContent;
     (str.includes('.')) ? null : display.textContent = str + '.';
 
-    // let isDecimalOnScreen = false;
-
-    // let decimalRegex = /\./gi;
-    // let decText = display.textContent.split(decimalRegex);
-    // let splitText = parseDisplay(); //gets the current display split by operator
-
-
-    // //Allows one decimal number if there's no operator and two if there is
-    // if ((decText.length === 2 && splitText.length < 3) ||
-    //     (decText.length > 2 && splitText.length >= 3)) {
-    //     isDecimalOnScreen = true;
-    //     };
-
-
-    // return isDecimalOnScreen;
 };
 
 function appendNumber(number){
+    //removes starting zero
     if (display.textContent === '0') clearDisplay();
+
+    //removes previous answer if showing on screen
+    if (isAnswer) display.textContent = '';
+    isAnswer = false;
+
     display.textContent += number;
 
 };
 
 function setOperation(operator){
-    firstNumber = display.textContent;
-    while (firstNumber === '') return;
 
-    summary.textContent = firstNumber + ' ' + operator;
+
+    if (isAnswer && summary.textContent){
+        let summaryStr = summary.textContent;
+        summary.textContent = summaryStr.slice(0, -1) + operator;
+        return;
+    };
+
+
+    currentNumber = display.textContent;
+
+    //Does nothing if display is blank
+    if (currentNumber === '' || currentNumber === '.') return;
+
+    //clears display and puts first part of equation on summary screen
+    if (summary.textContent === ''){
+        summary.textContent = currentNumber + ' ' + operator;
+        display.textContent = '';
+        return;
+        };
+
+    parseScreens();
+
+    operate(previousOperator, previousNumber, currentNumber);
+    summary.textContent += ' ' + operator;
+
 };
 
+function equalsFunc() {
+    if (summary.textContent === '' ||
+        display.textContent === ''||
+        isAnswer) return;
+
+    currentNumber = display.textContent;
+    parseScreens();
+    operate(previousOperator, previousNumber, currentNumber);
+    summary.textContent = '';
 
 
 
+};
+
+function parseScreens(){
+    //splits summary display with spaces to get previous number and operator
+    let summaryArr = summary.textContent.split(' ');
+    previousNumber = summaryArr[0];
+    previousOperator = summaryArr[1];
+}
+
+function keyboardSupport(key){
+    if (key >= 0 && key <= 9) appendNumber(key);
+
+    let possibleOperators = ['*','!','+','/','-','^'];
+
+    if (possibleOperators.includes(key)) setOperation(key);
 
 
 
+    switch (key){
 
-
-
-const updateDisplay = (input) => {
-    switch (input){
-        case 'C':
-            //clears the screen
-            display.textContent = '0';
-            summary.textContent = '';
-            return;
-
-
-        case 'BS':
-            //removes last character on screen
-            display.textContent = display.textContent.slice(0, -1);
-            return;
-
-        case '+/-':
-            toggleNegativeSign();
+        case ('Enter' || '='):
+            equalsFunc();
             return;
 
         case '.':
-            //makes sure there's not too many decimals already
-            while(checkForDecimal()) return;
-            break;
-
-
-        };
-
-    //removes starting zero from display
-    if (display.textContent === '0') display.textContent = '';
-
-    //adds to display as long as equals isn't pressed
-    if (input !== '='){
-    display.textContent += input;
-        };
-
-    //splits display into three parts, first number, operator, last number
-    let splitOnOperator = parseDisplay();
-    console.log(splitOnOperator);
-
-    //if no operator yet, stops here
-    if (splitOnOperator.length === 1) return;
-
-
-    let firstNumber = splitOnOperator[0],
-        operator = splitOnOperator[1],
-        secondNumber = splitOnOperator[2];
-
-
-    if (input === '='){
-        //if equals is pressed, operates what's on the display
-        summary.textContent = display.textContent;
-        operate(operator, firstNumber, secondNumber);
-    };
-
-    if (splitOnOperator.length === 4){
-        //if second operator is pressed, operates what's on the display first and appends second operator
-        summary.textContent = display.textContent;
-        console.log(summary.textContent);
-        operate(operator, firstNumber, secondNumber);
-        display.textContent += input;
-    };
-
-
-};
-
-const parseDisplay = () => {
-    //splits what's on the display on every possible operator and returns split string array
-    let operatorRegex = /([\+\-*\/\^!])/gi;
-    let splitDisplay = display.textContent.split(operatorRegex);
-    //filter out empty strings
-    let filteredDisplay = splitDisplay.filter(e => e);
-
-    //adds negative sign to first number if it is has one
-    if (filteredDisplay[0] === '-'){
-        filteredDisplay.shift();
-        filteredDisplay[0] = '-' + filteredDisplay[0];
-    };
-
-
-
-    return filteredDisplay;
-
-
-
-};
-
-
-
-
-
-function keyboardSupport(key){
-    switch (key){
-        case 'Enter':
-            key = '=';
-            break;
+            appendDecimal();
+            return;
 
         case 'Backspace':
-            key = 'BS';
-            break;
+            doBackspace();
+            return;
 
-        case 'c':
-            key = 'C';
-            break;
-
-        case 'Delete':
-            key = 'C';
+        case ('Escape' || 'Delete'):
+            clearDisplay();
+            return;
     };
 
-    let possibleButtons = ['1','2','3','4','5','6','7','8','9','0',
-    '*','!','+','.','/','-','^','=','C','BS'];
 
-    //does nothing if key pressed isn't part of calculator
-    while (!(possibleButtons.includes(key))) return;
 
-    updateDisplay(key);
+
+
+
+
+    // switch (key){
+    //     case 'Enter':
+    //         key = '=';
+    //         break;
+
+    //     case 'Backspace':
+    //         key = 'BS';
+    //         break;
+
+    //     case 'c':
+    //         key = 'C';
+    //         break;
+
+    //     case 'Delete':
+    //         key = 'C';
+    // };
+
+    // let possibleButtons = ['1','2','3','4','5','6','7','8','9','0',
+    // '*','!','+','.','/','-','^','=','C','BS'];
+
+    // //does nothing if key pressed isn't part of calculator
+    // while (!(possibleButtons.includes(key))) return;
+
+
+
 
 }
 
@@ -297,5 +273,7 @@ function operate (operator, a, b){
         return display.textContent = answer.toPrecision(12);
         };
     display.textContent = answer;
+    summary.textContent = answer;
+    isAnswer = true;
 };
 
